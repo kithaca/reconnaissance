@@ -6,7 +6,7 @@ canvas.width = 1300;
 canvas.height = 950;
 
 var ctx = canvas.getContext('2d');
-ctx.backgroundColor = "midnightblue"
+ctx.backgroundColor = "midnightblue";
 
 var g = new GameView(new Game(), ctx);
 
