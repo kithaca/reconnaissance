@@ -1,3 +1,27 @@
 #canvas {
   background-color: black;
 }
+
+.container {
+  padding: 0px 300px;
+  padding-top: 10px;
+}
+
+body {
+  background-image: url("http://www.topdesignmag.com/wp-content/uploads/2010/12/1116.jpg");
+  background-repeat: repeat;
+}
+
+.group:after {
+  display: block;
+  content: "";
+  clear: both;
+}
+
+.instructions {
+  font-family: sans-serif;
+  font-style: bold;
+  font-size: 18px;
+  text-align: center;
+  background-color: moccasin;
+}

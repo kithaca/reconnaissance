@@ -3,7 +3,7 @@ var Game = require('./lib/game');
 
 var canvas = document.getElementById('canvas');
 canvas.width = 1300;
-canvas.height = 950;
+canvas.height = 800;
 
 var ctx = canvas.getContext('2d');
 
