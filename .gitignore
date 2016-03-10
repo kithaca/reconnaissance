@@ -1,7 +1,3 @@
-# ignore bundle.js
-bundle.js
-bundle.js.map
-
 # ignore modules
 node_modules
 
