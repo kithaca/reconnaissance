@@ -7,4 +7,4 @@ You are an intrepid spy sent to capture important enemy secrets! Use the arrow k
 
 Uses JavaScript, Canvas, HTML, and CSS.
 
-[screenshot]: ./withFlag.png
+[screenshot](withFlag.png)
