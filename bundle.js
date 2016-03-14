@@ -48,8 +48,8 @@
 	var Game = __webpack_require__(2);
 
 	var canvas = document.getElementById('canvas');
-	canvas.width = 1300;
-	canvas.height = 800;
+	canvas.width = 1100;
+	canvas.height = 650;
 
 	var ctx = canvas.getContext('2d');
 
@@ -60,50 +60,103 @@
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	var key = __webpack_require__(8);
 
 	var GameView = function (game, ctx) {
 	  this.game = game;
 	  this.ctx = ctx;
+	  this.paused = false;
 	};
 
 	GameView.MOVES = {
-	  37: [-1, 0],
-	  39: [1, 0],
-	  38: [0, -1],
-	  40: [0, 1]
+	  "left": [-1, 0],
+	  "right": [1, 0],
+	  "up": [0, -1],
+	  "down": [0, 1]
 	};
 
 	GameView.prototype.start = function () {
-	  this.bindKeyHandlers();
+	  this.bindPause();
 	  this.lastTime = 0;
 	  requestAnimationFrame(this.animate.bind(this));
 	  view = this;
 	};
 
 	GameView.prototype.animate = function (time) {
-	  var delta = time - this.lastTime;
-	  this.game.step(delta);
-	  this.game.draw(view.ctx);
-	  this.lastTime = time;
-
-	  requestAnimationFrame(this.animate.bind(this));
-	}
-
-	GameView.prototype.bindKeyHandlers = function () {
-	  var player = this.game.player;
-	  var move;
-	  var that = this;
-
-	  document.onkeydown = function (e) {
-	    e.preventDefault();
-	    move = GameView.MOVES[e.keyCode];
-	    player.power(move);
+	  if (!this.paused) {
+	    var delta = time - this.lastTime;
+	    this.game.step(delta);
+	    this.game.draw(view.ctx);
+	    this.lastTime = time;
+	    this.checkKey();
+	    requestAnimationFrame(this.animate.bind(this));
+	  } else {
+	    requestAnimationFrame(this.animate.bind(this));
 	  }
 
 	};
 
+	GameView.prototype.pause = function () {
+	  this.paused = this.paused ? false : true;
+	};
+
+	GameView.prototype.bindPause = function () {
+	  var that = this;
+	  document.onkeydown = function (e) {
+	    e.preventDefault();
+	    if (e.keyCode === 32) {
+	      that.pause()
+	    }
+	  }
+	};
+
+	GameView.prototype.checkKey = function () {
+
+	  if (key.isPressed("left") && key.isPressed("up")) {
+	    this.game.player.power([-0.7071, -0.7071]);
+	  } else if (key.isPressed("left") && key.isPressed("down")) {
+	    this.game.player.power([-0.7071, 0.7071]);
+	  } else if (key.isPressed("right") && key.isPressed("up")) {
+	    this.game.player.power([0.7071, -0.7071]);
+	  } else if (key.isPressed("right") && key.isPressed("down")) {
+	    this.game.player.power([0.7071, 0.7071]);
+	  } else if (key.isPressed("left")) {
+	    this.game.player.power(GameView.MOVES["left"])
+	  } else if (key.isPressed("right")) {
+	    this.game.player.power(GameView.MOVES["right"])
+	  } else if (key.isPressed("up")) {
+	    this.game.player.power(GameView.MOVES["up"])
+	  } else if (key.isPressed("down")) {
+	    this.game.player.power(GameView.MOVES["down"])
+	  }
+
+
+	};
+
 	module.exports = GameView;
+
+	// GameView.prototype.bindKeyHandlers = function () {
+	//   var player = this.game.player;
+	//   var move;
+	//   var that = this;
+	//
+	//   Object.keys(GameView.MOVES).forEach(function (k) {
+	//       var move = GameView.MOVES[k];
+	//
+	//       key(k, function () {
+	//         player.power(move);
+	//       });
+	//     });
+
+	// document.onkeydown = function (e) {
+	//   e.preventDefault();
+	//   move = GameView.MOVES[e.keyCode];
+	//   player.power(move);
+	// }
+
+	// };
 
 
 /***/ },
@@ -116,8 +169,8 @@
 	var EnemyPlayer = __webpack_require__(7);
 
 	var Game = function () {
-	  this.DIM_X = 1300;
-	  this.DIM_Y = 800;
+	  this.DIM_X = 1100;
+	  this.DIM_Y = 650;
 	  this.NUM_ENEMIES = 5;
 	  this.obstacles = this.addObstacles();
 	  this.homeBase = this.addHomeBase();
@@ -360,7 +413,7 @@
 	  this.pos = pos;
 	  this.game = game;
 	  this.type = "moving";
-	  this.maxVel = 7;
+	  this.maxVel = 5.5;
 	};
 
 	Util.inherits(Player, MovingObject);
@@ -390,12 +443,11 @@
 	};
 
 	Player.prototype.getFlag = function () {
-	  // debugger;
 	  var base = {};
 	  var radius = this.game.enemyBase.width;
-	  base.pos = [this.game.enemyBase.x + radius, this.game.enemyBase.y + radius];
+	  base.pos = [this.game.enemyBase.x + radius/2, this.game.enemyBase.y + radius/2];
 
-	  if (this.distance(base) < this.game.enemyBase.width) {
+	  if (this.distance(base) <= this.radius) {
 	    this.game.flagCaptured = true;
 	  }
 	};
@@ -403,9 +455,9 @@
 	Player.prototype.flagDelivered = function () {
 	  var base = {};
 	  var radius = this.game.homeBase.width;
-	  base.pos = [this.game.homeBase.x + radius, this.game.homeBase.y + radius];
+	  base.pos = [this.game.homeBase.x + radius/2, this.game.homeBase.y + radius/2];
 
-	  if (this.distance(base) < this.game.homeBase.width + this.radius) {
+	  if (this.distance(base) <= this.radius) {
 	    return true;
 	  } else {
 	    return false;
@@ -549,8 +601,8 @@
 	};
 
 	MovingObject.prototype.dampen = function () {
-	  this.vel[0] *= 0.98;
-	  this.vel[1] *= 0.98;
+	  this.vel[0] *= 0.95;
+	  this.vel[1] *= 0.95;
 	};
 
 	var NORMAL_FRAME_DELTA = 1000/60;
@@ -585,12 +637,14 @@
 	        that.game.flagCaptured = false;
 	        that.game.player.relocate();
 	      } else {
-	        obj.vel[0] *= -1;
-	        obj.vel[1] *= -1;
+	        var tempX = obj.vel[0];
+	        var tempY = obj.vel[1];
+	        obj.vel[0] = that.vel[0] * 0.8;
+	        obj.vel[1] = that.vel[1] * 0.8;
 	        obj.pos[0] += obj.vel[0];
 	        obj.pos[1] += obj.vel[1];
-	        that.vel[0] *= -1;
-	        that.vel[1] *= -1;
+	        that.vel[0] = tempX * 0.8;
+	        that.vel[1] = tempY * 0.8;
 	        that.pos[0] += that.vel[0];
 	        that.pos[1] += that.vel[1];
 	      }
@@ -706,6 +760,248 @@
 	Util.inherits(EnemyPlayer, MovingObject);
 
 	module.exports = EnemyPlayer;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//     keymaster.js
+	//     (c) 2011-2012 Thomas Fuchs
+	//     keymaster.js may be freely distributed under the MIT license.
+
+	;(function(global){
+	  var k,
+	    _handlers = {},
+	    _mods = { 16: false, 18: false, 17: false, 91: false },
+	    _scope = 'all',
+	    // modifier keys
+	    _MODIFIERS = {
+	      '⇧': 16, shift: 16,
+	      '⌥': 18, alt: 18, option: 18,
+	      '⌃': 17, ctrl: 17, control: 17,
+	      '⌘': 91, command: 91
+	    },
+	    // special keys
+	    _MAP = {
+	      backspace: 8, tab: 9, clear: 12,
+	      enter: 13, 'return': 13,
+	      esc: 27, escape: 27, space: 32,
+	      left: 37, up: 38,
+	      right: 39, down: 40,
+	      del: 46, 'delete': 46,
+	      home: 36, end: 35,
+	      pageup: 33, pagedown: 34,
+	      ',': 188, '.': 190, '/': 191,
+	      '`': 192, '-': 189, '=': 187,
+	      ';': 186, '\'': 222,
+	      '[': 219, ']': 221, '\\': 220
+	    },
+	    code = function(x){
+	      return _MAP[x] || x.toUpperCase().charCodeAt(0);
+	    },
+	    _downKeys = [];
+
+	  for(k=1;k<20;k++) _MODIFIERS['f'+k] = 111+k;
+
+	  // IE doesn't support Array#indexOf, so have a simple replacement
+	  function index(array, item){
+	    var i = array.length;
+	    while(i--) if(array[i]===item) return i;
+	    return -1;
+	  }
+
+	  var modifierMap = {
+	      16:'shiftKey',
+	      18:'altKey',
+	      17:'ctrlKey',
+	      91:'metaKey'
+	  };
+	  function updateModifierKey(event) {
+	      for(k in _mods) _mods[k] = event[modifierMap[k]];
+	  };
+
+	  // handle keydown event
+	  function dispatch(event, scope){
+	    var key, handler, k, i, modifiersMatch;
+	    key = event.keyCode;
+
+	    if (index(_downKeys, key) == -1) {
+	        _downKeys.push(key);
+	    }
+
+	    // if a modifier key, set the key.<modifierkeyname> property to true and return
+	    if(key == 93 || key == 224) key = 91; // right command on webkit, command on Gecko
+	    if(key in _mods) {
+	      _mods[key] = true;
+	      // 'assignKey' from inside this closure is exported to window.key
+	      for(k in _MODIFIERS) if(_MODIFIERS[k] == key) assignKey[k] = true;
+	      return;
+	    }
+	    updateModifierKey(event);
+
+	    // see if we need to ignore the keypress (filter() can can be overridden)
+	    // by default ignore key presses if a select, textarea, or input is focused
+	    if(!assignKey.filter.call(this, event)) return;
+
+	    // abort if no potentially matching shortcuts found
+	    if (!(key in _handlers)) return;
+
+	    // for each potential shortcut
+	    for (i = 0; i < _handlers[key].length; i++) {
+	      handler = _handlers[key][i];
+
+	      // see if it's in the current scope
+	      if(handler.scope == scope || handler.scope == 'all'){
+	        // check if modifiers match if any
+	        modifiersMatch = handler.mods.length > 0;
+	        for(k in _mods)
+	          if((!_mods[k] && index(handler.mods, +k) > -1) ||
+	            (_mods[k] && index(handler.mods, +k) == -1)) modifiersMatch = false;
+	        // call the handler and stop the event if neccessary
+	        if((handler.mods.length == 0 && !_mods[16] && !_mods[18] && !_mods[17] && !_mods[91]) || modifiersMatch){
+	          if(handler.method(event, handler)===false){
+	            if(event.preventDefault) event.preventDefault();
+	              else event.returnValue = false;
+	            if(event.stopPropagation) event.stopPropagation();
+	            if(event.cancelBubble) event.cancelBubble = true;
+	          }
+	        }
+	      }
+	    }
+	  };
+
+	  // unset modifier keys on keyup
+	  function clearModifier(event){
+	    var key = event.keyCode, k,
+	        i = index(_downKeys, key);
+
+	    // remove key from _downKeys
+	    if (i >= 0) {
+	        _downKeys.splice(i, 1);
+	    }
+
+	    if(key == 93 || key == 224) key = 91;
+	    if(key in _mods) {
+	      _mods[key] = false;
+	      for(k in _MODIFIERS) if(_MODIFIERS[k] == key) assignKey[k] = false;
+	    }
+	  };
+
+	  function resetModifiers() {
+	    for(k in _mods) _mods[k] = false;
+	    for(k in _MODIFIERS) assignKey[k] = false;
+	  }
+
+	  // parse and assign shortcut
+	  function assignKey(key, scope, method){
+	    var keys, mods, i, mi;
+	    if (method === undefined) {
+	      method = scope;
+	      scope = 'all';
+	    }
+	    key = key.replace(/\s/g,'');
+	    keys = key.split(',');
+
+	    if((keys[keys.length-1])=='')
+	      keys[keys.length-2] += ',';
+	    // for each shortcut
+	    for (i = 0; i < keys.length; i++) {
+	      // set modifier keys if any
+	      mods = [];
+	      key = keys[i].split('+');
+	      if(key.length > 1){
+	        mods = key.slice(0,key.length-1);
+	        for (mi = 0; mi < mods.length; mi++)
+	          mods[mi] = _MODIFIERS[mods[mi]];
+	        key = [key[key.length-1]];
+	      }
+	      // convert to keycode and...
+	      key = key[0]
+	      key = code(key);
+	      // ...store handler
+	      if (!(key in _handlers)) _handlers[key] = [];
+	      _handlers[key].push({ shortcut: keys[i], scope: scope, method: method, key: keys[i], mods: mods });
+	    }
+	  };
+
+	  // Returns true if the key with code 'keyCode' is currently down
+	  // Converts strings into key codes.
+	  function isPressed(keyCode) {
+	      if (typeof(keyCode)=='string') {
+	        keyCode = code(keyCode);
+	      }
+	      return index(_downKeys, keyCode) != -1;
+	  }
+
+	  function getPressedKeyCodes() {
+	      return _downKeys.slice(0);
+	  }
+
+	  function filter(event){
+	    var tagName = (event.target || event.srcElement).tagName;
+	    // ignore keypressed in any elements that support keyboard data input
+	    return !(tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA');
+	  }
+
+	  // initialize key.<modifier> to false
+	  for(k in _MODIFIERS) assignKey[k] = false;
+
+	  // set current scope (default 'all')
+	  function setScope(scope){ _scope = scope || 'all' };
+	  function getScope(){ return _scope || 'all' };
+
+	  // delete all handlers for a given scope
+	  function deleteScope(scope){
+	    var key, handlers, i;
+
+	    for (key in _handlers) {
+	      handlers = _handlers[key];
+	      for (i = 0; i < handlers.length; ) {
+	        if (handlers[i].scope === scope) handlers.splice(i, 1);
+	        else i++;
+	      }
+	    }
+	  };
+
+	  // cross-browser events
+	  function addEvent(object, event, method) {
+	    if (object.addEventListener)
+	      object.addEventListener(event, method, false);
+	    else if(object.attachEvent)
+	      object.attachEvent('on'+event, function(){ method(window.event) });
+	  };
+
+	  // set the handlers globally on document
+	  addEvent(document, 'keydown', function(event) { dispatch(event, _scope) }); // Passing _scope to a callback to ensure it remains the same by execution. Fixes #48
+	  addEvent(document, 'keyup', clearModifier);
+
+	  // reset modifiers to false whenever the window is (re)focused.
+	  addEvent(window, 'focus', resetModifiers);
+
+	  // store previously defined key
+	  var previousKey = global.key;
+
+	  // restore previously defined key and return reference to our key object
+	  function noConflict() {
+	    var k = global.key;
+	    global.key = previousKey;
+	    return k;
+	  }
+
+	  // set window.key and window.key.set/get/deleteScope, and the default filter
+	  global.key = assignKey;
+	  global.key.setScope = setScope;
+	  global.key.getScope = getScope;
+	  global.key.deleteScope = deleteScope;
+	  global.key.filter = filter;
+	  global.key.isPressed = isPressed;
+	  global.key.getPressedKeyCodes = getPressedKeyCodes;
+	  global.key.noConflict = noConflict;
+
+	  if(true) module.exports = key;
+
+	})(this);
 
 
 /***/ }
