@@ -470,7 +470,7 @@
 
 	  var game = this;
 	  var img = new Image();
-	  img.src = "blackDots.png";
+	  img.src = "blackDots.gif";
 	  var pattern = null;
 	  return [
 	    {
@@ -736,8 +736,8 @@
 
 	Player.prototype.getFlag = function () {
 	  var base = {};
-	  var radius = this.game.enemyBase.width;
-	  base.pos = [this.game.enemyBase.x, this.game.enemyBase.y];
+	  var radius = this.game.enemyBase.width / 4;
+	  base.pos = [this.game.enemyBase.x + radius, this.game.enemyBase.y + radius];
 
 	  if (this.distance(base) <= this.width / 2) {
 	    this.game.flagCaptured = true;
@@ -746,10 +746,11 @@
 
 	Player.prototype.flagDelivered = function () {
 	  var base = {};
-	  var radius = this.game.homeBase.width;
-	  base.pos = [this.game.homeBase.x, this.game.homeBase.y];
+	  var radius = this.game.homeBase.width / 2;
+	  base.pos = [this.game.homeBase.x + radius, this.game.homeBase.y + radius];
 
 	  if (this.distance(base) <= this.width / 2) {
+	    // debugger;
 	    return true;
 	  } else {
 	    return false;
