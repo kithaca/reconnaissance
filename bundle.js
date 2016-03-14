@@ -231,18 +231,27 @@
 
 	    {
 	      type: "obstacle",
-	      x: 100,
+	      x: 180,
 	      y: 180,
-	      width: 100,
+	      width: 20,
 	      height: 20,
 	      color: "sienna"
 	    },
 
 	    {
 	      type: "obstacle",
-	      x: game.DIM_X - 200,
+	      x: 100,
+	      y: 180,
+	      width: 80,
+	      height: 20,
+	      color: "sienna"
+	    },
+
+	    {
+	      type: "obstacle",
+	      x: game.DIM_X - 180,
 	      y: game.DIM_Y - 200,
-	      width: 100,
+	      width: 80,
 	      height: 20,
 	      color: "sienna"
 	    },
@@ -255,6 +264,16 @@
 	      height: 100,
 	      color: "sienna"
 	    },
+
+	    {
+	      type: "obstacle",
+	      x: game.DIM_X - 200,
+	      y: game.DIM_Y - 200,
+	      width: 20,
+	      height: 20,
+	      color: "sienna"
+	    },
+
 	  ];
 	};
 
@@ -300,7 +319,6 @@
 	  var that = this;
 	  this.drawScore();
 
-
 	  that.allObjects().forEach(function (obj) {
 	    if (obj.type === "obstacle" || obj.type === "base") {
 	      ctx.fillStyle = obj.color;
@@ -309,7 +327,7 @@
 	      if (!that.flagCaptured) {
 	        ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
 	      } else {
-	        ctx.drawImage(obj.img, that.player.pos[0], that.player.pos[1], obj.width, obj.height);
+	        ctx.drawImage(obj.img, that.player.pos[0] + 6, that.player.pos[1] - obj.height + 1, obj.width, obj.height);
 	      }
 	    } else {
 	      obj.draw(ctx);
@@ -414,9 +432,17 @@
 	  this.game = game;
 	  this.type = "moving";
 	  this.maxVel = 5.5;
+	  this.img = new Image();
+	  this.img.src = 'playerShip.png';
+	  this.width = 30;
+	  this.height = 20;
 	};
 
 	Util.inherits(Player, MovingObject);
+
+	Player.prototype.draw = function (ctx) {
+	  ctx.drawImage(this.img, this.pos[0], this.pos[1], this.width, this.height);
+	};
 
 	Player.prototype.relocate = function () {
 	  this.pos = [this.game.homeBase.x, this.game.homeBase.y];
@@ -447,7 +473,7 @@
 	  var radius = this.game.enemyBase.width;
 	  base.pos = [this.game.enemyBase.x + radius/2, this.game.enemyBase.y + radius/2];
 
-	  if (this.distance(base) <= this.radius) {
+	  if (this.distance(base) <= this.width / 2) {
 	    this.game.flagCaptured = true;
 	  }
 	};
@@ -457,7 +483,7 @@
 	  var radius = this.game.homeBase.width;
 	  base.pos = [this.game.homeBase.x + radius/2, this.game.homeBase.y + radius/2];
 
-	  if (this.distance(base) <= this.radius) {
+	  if (this.distance(base) <= this.width / 2) {
 	    return true;
 	  } else {
 	    return false;
@@ -515,7 +541,6 @@
 	var MovingObject = function (options) {
 	  this.pos = options.pos;
 	  this.vel = options.vel;
-	  this.radius = 100; //options.radius;
 	  this.color = options.color;
 	  this.game = options.game;
 	};
@@ -535,22 +560,6 @@
 	  } else {
 	    return false;
 	  }
-	};
-
-	MovingObject.prototype.draw = function (ctx) {
-
-	  ctx.fillStyle = this.color;
-	  ctx.beginPath();
-
-	  ctx.arc(
-	    this.pos[0],
-	    this.pos[1],
-	    this.radius,
-	    0,
-	    2 * Math.PI,
-	    false
-	  );
-	  ctx.fill();
 	};
 
 	MovingObject.prototype.checkEdges = function (pos, vel) {
@@ -588,11 +597,11 @@
 	    var xBounds = [obs.x, obs.x + obs.width];
 	    var yBounds = [obs.y, obs.y + obs.height];
 
-	    if ((x + that.radius) >= xBounds[0] && (x - that.radius) <= xBounds[1] &&
-	        (y + that.radius) >= yBounds[0] && (y - that.radius) <= yBounds[1]) {
-
-	      velX *= -1;
-	      velY *= -1;
+	    if ((x + that.width) >= xBounds[0] && x <= xBounds[1] &&
+	        (y + that.height) >= yBounds[0] && y <= yBounds[1]) {
+	          // debugger;
+	          velX *= -0.8;
+	          velY *= -0.8;
 	    }
 
 	  });
@@ -669,14 +678,22 @@
 	  this.vel = Util.randomVec(2);
 	  this.color = "green";
 	  this.radius = 10;
+	  this.width = 30;
+	  this.height = 20;
 	  this.pos = pos;
 	  this.game = game;
 	  this.type = "moving";
 	  this.maxVel = 2;
 	  this.goal = this.generateDestination();
+	  this.img = new Image();
+	  this.img.src = 'enemyShip.png';
 	};
 
 	Util.inherits(Enemy, MovingObject);
+
+	Enemy.prototype.draw = function (ctx) {
+	  ctx.drawImage(this.img, this.pos[0], this.pos[1], this.width, this.height);
+	};
 
 	Enemy.prototype.followPlayer = function () {
 	  var delta = this.delta(this.game.player.pos);
@@ -687,7 +704,6 @@
 	  var goal = {};
 	  goal.pos = this.game.randomPosition();
 	  return goal;
-
 	};
 
 	Enemy.prototype.randomTrajectory = function () {

@@ -1,5 +1,7 @@
 #canvas {
-  background-color: black;
+  background-color: cornsilk;
+  background-image: url("http://www.astrolabium.edu.pl/system/files/hubble-space-wallpapers-for-desktop-background-13.jpg");
+  background-size: cover;
 }
 
 .container {
