@@ -620,7 +620,7 @@
 	  var canvas = document.getElementById('canvas');
 	  var ctx = canvas.getContext('2d');
 	  ctx.font = "30px Verdana";
-	  ctx.fillStyle = "aquamarine";
+	  ctx.fillStyle = "moccasin";
 	  var score = this.points;
 	  ctx.fillText(score, this.DIM_X -50, 50);
 
@@ -737,7 +737,7 @@
 	Player.prototype.getFlag = function () {
 	  var base = {};
 	  var radius = this.game.enemyBase.width;
-	  base.pos = [this.game.enemyBase.x + radius/2, this.game.enemyBase.y + radius/2];
+	  base.pos = [this.game.enemyBase.x, this.game.enemyBase.y];
 
 	  if (this.distance(base) <= this.width / 2) {
 	    this.game.flagCaptured = true;
@@ -747,7 +747,7 @@
 	Player.prototype.flagDelivered = function () {
 	  var base = {};
 	  var radius = this.game.homeBase.width;
-	  base.pos = [this.game.homeBase.x + radius/2, this.game.homeBase.y + radius/2];
+	  base.pos = [this.game.homeBase.x, this.game.homeBase.y];
 
 	  if (this.distance(base) <= this.width / 2) {
 	    return true;

@@ -1,17 +1,19 @@
 #canvas {
-  background-color: cornsilk;
   background-image: url("http://www.astrolabium.edu.pl/system/files/hubble-space-wallpapers-for-desktop-background-13.jpg");
   background-size: cover;
 }
 
 .container {
   padding: 0px 300px;
+  width: 1100px;
   padding-top: 10px;
+  margin: 0 auto;
 }
 
 body {
-  background-image: url("http://www.topdesignmag.com/wp-content/uploads/2010/12/1116.jpg");
-  background-repeat: repeat;
+  background-color: black;
+  color: moccasin;
+  font-family: sans-serif;
 }
 
 .group:after {
@@ -20,10 +22,14 @@ body {
   clear: both;
 }
 
+.header {
+  text-align: center;
+  font-size: 40px;
+}
+
 .instructions {
   font-family: sans-serif;
   font-style: bold;
   font-size: 18px;
   text-align: center;
-  background-color: moccasin;
 }
