@@ -537,7 +537,7 @@
 	};
 
 	Game.prototype.addPlayer = function () {
-	  return new Player([this.homeBase.x, this.homeBase.y], this);
+	  return new Player([this.homeBase.x + 50, this.homeBase.y + 50], this);
 	};
 
 	Game.prototype.addEnemy = function () {
@@ -697,7 +697,7 @@
 	  this.pos = pos;
 	  this.game = game;
 	  this.type = "moving";
-	  this.maxVel = 5.5;
+	  this.maxVel = 4.5;
 	  this.img = new Image();
 	  this.img.src = 'playerShip.png';
 	  this.width = 30;
@@ -711,7 +711,7 @@
 	};
 
 	Player.prototype.relocate = function () {
-	  this.pos = [this.game.homeBase.x, this.game.homeBase.y];
+	  this.pos = [this.game.homeBase.x + 50, this.game.homeBase.y + 50];
 	  this.vel = [0, 0];
 	};
 
@@ -912,7 +912,8 @@
 	      if (that.game.flagCaptured && obj === that.game.player) {
 	        that.game.flagCaptured = false;
 	        that.game.player.relocate();
-	      } else {
+	      } else if (that !== that.game.player && obj !== that.game.player) {
+	        debugger;
 	        var tempX = obj.vel[0];
 	        var tempY = obj.vel[1];
 	        obj.vel[0] = that.vel[0] * 0.8;
@@ -950,7 +951,7 @@
 	  this.pos = pos;
 	  this.game = game;
 	  this.type = "moving";
-	  this.maxVel = 2;
+	  this.maxVel = 1.5;
 	  this.goal = this.generateDestination();
 	  this.img = new Image();
 	  this.img.src = 'enemyShip.png';
